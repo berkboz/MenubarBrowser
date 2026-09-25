@@ -2,7 +2,12 @@ name: Build
 
 on:
   push:
+    branches: ["**"]
+    tags: ["v*"]
   pull_request:
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -15,14 +20,19 @@ jobs:
         with:
           name: Perch
           path: build/Perch.zip
+
       - name: Screenshots
         run: |
           mkdir -p shots
+          swift Icon/icon.swift shots/icon > /dev/null
+          swiftc -O scripts/window-id.swift -o build/window-id
           shoot() { # name, then arguments for Perch
             name="$1"; shift
             open build/Perch.app --args --show "$@"
             sleep "${WAIT:-6}"
             screencapture -x "shots/$name.png" || true
+            id="$(build/window-id)"
+            [ -n "$id" ] && screencapture -x -l"$id" "shots/$name-window.png" || true
             pkill -x Perch || true
             sleep 1
           }
@@ -31,6 +41,7 @@ jobs:
           defaults write app.perch.browser look dark
           rm -f "$HOME/Library/Application Support/Perch/session.json"
           shoot start-dark
+          WAIT=14 shoot page-dark https://news.ycombinator.com/
           defaults write app.perch.browser width -float 980
           defaults write app.perch.browser height -float 760
           WAIT=14 shoot wide-dark https://www.apple.com/
@@ -38,3 +49,12 @@ jobs:
         with:
           name: Screenshots
           path: shots
+
+      - name: Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" build/Perch.zip \
+            --title "Perch ${GITHUB_REF_NAME#v}" \
+            --notes "A browser that lives in your menu bar. Download Perch.zip, unzip it and move Perch to Applications. This build is not notarized yet: the first time, open it from System Settings › Privacy & Security › Open Anyway."
