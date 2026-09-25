@@ -163,15 +163,17 @@ final class PanelController: NSObject, NSWindowDelegate {
         let screen = anchor?.window?.screen ?? NSScreen.main ?? NSScreen.screens[0]
         let visible = screen.visibleFrame
         let width = min(max(size.width, Metrics.minSize.width), visible.width - 16)
-        let top: CGFloat
-        let midX: CGFloat
+        // Always the bottom of the menu bar; the icon only decides where along
+        // it. Right after launch the icon may not have been placed yet, and its
+        // frame then says nothing useful, so it's only trusted when it sits on
+        // this screen.
+        let top = visible.maxY - Metrics.drop
+        var midX = visible.maxX - width / 2 - 8
         if let button = anchor, let window = button.window {
             let rect = window.convertToScreen(button.convert(button.bounds, to: nil))
-            top = min(rect.minY, visible.maxY) - Metrics.drop
-            midX = rect.midX
-        } else {
-            top = visible.maxY - Metrics.drop
-            midX = visible.midX
+            if rect.width > 0, screen.frame.contains(NSPoint(x: rect.midX, y: rect.midY)) {
+                midX = rect.midX
+            }
         }
         let height = min(max(size.height, Metrics.minSize.height), top - visible.minY - 8)
         var x = midX - width / 2
