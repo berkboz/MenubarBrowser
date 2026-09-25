@@ -329,9 +329,12 @@ struct SuggestionList: View {
     @ObservedObject private var icons = Icons.shared
 
     var body: some View {
+        // One snapshot of the rows: the list can change while SwiftUI is still
+        // building the old one, and indexing the live array then goes out of range.
+        let rows = omni.rows
         VStack(spacing: 1) {
-            ForEach(Array(omni.rows.enumerated()), id: \.element.id) { index, row in
-                if index > 0, omni.rows[index - 1].kind == .search, row.kind != .search {
+            ForEach(Array(rows.enumerated()), id: \.element.id) { index, row in
+                if index > 0, rows[index - 1].kind == .search, row.kind != .search {
                     Divider().padding(.horizontal, 10).padding(.vertical, 3)
                 }
                 SuggestionRow(row: row, picked: omni.picked == index, icon: icons.icon(for: row.url.host ?? ""))
