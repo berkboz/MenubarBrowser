@@ -1,6 +1,6 @@
 #!/bin/bash
 # Builds build/Perch.app from the SwiftPM executable: a folder, a plist, the
-# binary, an icon drawn fresh from Icon/icon.swift, and an ad-hoc signature.
+# binary, the icons from Icon/, and an ad-hoc signature.
 #
 #   ./build.sh            release build, ad-hoc signed — runs on this Mac
 #   ./build.sh debug      debug build
@@ -25,11 +25,24 @@ mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp "$BINARY" "$APP/Contents/MacOS/$NAME"
 [ "$CONFIG" = "release" ] && strip -x "$APP/Contents/MacOS/$NAME"
 
+# The app icon: Icon/AppIcon.png (1024 px, already on Apple's icon grid),
+# cut into every size an .icns wants. Without it, Icon/icon.swift draws one.
 ICONSET="build/AppIcon.iconset"
 rm -rf "$ICONSET"
-swift Icon/icon.swift "$ICONSET" > /dev/null
+if [ -f Icon/AppIcon.png ]; then
+  mkdir -p "$ICONSET"
+  for SIZE in 16 32 128 256 512; do
+    sips -z $SIZE $SIZE Icon/AppIcon.png --out "$ICONSET/icon_${SIZE}x${SIZE}.png" > /dev/null
+    sips -z $((SIZE * 2)) $((SIZE * 2)) Icon/AppIcon.png --out "$ICONSET/icon_${SIZE}x${SIZE}@2x.png" > /dev/null
+  done
+else
+  swift Icon/icon.swift "$ICONSET" > /dev/null
+fi
 iconutil -c icns "$ICONSET" -o "$APP/Contents/Resources/AppIcon.icns"
 rm -rf "$ICONSET"
+
+# The menu bar glyph, a template image at 1x, 2x and 3x.
+cp Icon/MenuBarIcon*.png "$APP/Contents/Resources/" 2>/dev/null || true
 
 cat > "$APP/Contents/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>

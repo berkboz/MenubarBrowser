@@ -29,7 +29,7 @@ jobs:
       - name: Screenshots
         run: |
           mkdir -p shots
-          swift Icon/icon.swift shots/icon > /dev/null
+          mkdir -p shots/icon && cp Icon/*.png shots/icon/
           swiftc -O scripts/window-id.swift -o build/window-id
           shoot() { # name, then arguments for Perch
             name="$1"; shift

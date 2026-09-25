@@ -152,10 +152,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
 // MARK: - Menu bar glyph
 
-/// A little window with its address bar: the whole app in 18 points. Drawn
-/// rather than shipped, and a template so the menu bar tints it.
+/// The bird from the app icon, as a template image so the menu bar tints it
+/// (Icon/MenuBarIcon*.png, copied into the app by build.sh). Running outside
+/// an app bundle, a little window drawn in code stands in.
 enum StatusGlyph {
     static let image: NSImage = {
+        if let bird = Bundle.main.image(forResource: "MenuBarIcon") {
+            bird.size = NSSize(width: 18, height: 18)
+            bird.isTemplate = true
+            return bird
+        }
         let image = NSImage(size: NSSize(width: 18, height: 18), flipped: false) { _ in
             NSColor.black.set()
             let body = NSBezierPath(roundedRect: NSRect(x: 2.25, y: 2.75, width: 13.5, height: 12.5),

@@ -1,3 +1,5 @@
+<img src="Icon/AppIcon.png" width="128" alt="Perch icon">
+
 # Perch
 
 **A browser that lives in your menu bar.**
@@ -106,7 +108,7 @@ Sources/Perch/
   HotKey.swift       system-wide shortcut via Carbon
   Blocker.swift      content blocking rules
   Design.swift       metrics, motion, shared little views
-Icon/icon.swift      draws the app icon at build time
+Icon/              the app icon (AppIcon.png) and the menu bar glyph (MenuBarIcon*.png)
 ```
 
 ## Thanks
