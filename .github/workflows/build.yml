@@ -29,6 +29,7 @@ jobs:
           shoot start
           WAIT=14 shoot page https://en.wikipedia.org/wiki/Menu_bar
           defaults write app.perch.browser look dark
+          rm -f "$HOME/Library/Application Support/Perch/session.json"
           shoot start-dark
           defaults write app.perch.browser width -float 980
           defaults write app.perch.browser height -float 760

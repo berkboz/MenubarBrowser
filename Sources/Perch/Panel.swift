@@ -58,6 +58,9 @@ final class PanelController: NSObject, NSWindowDelegate {
 
         let host = NSHostingView(rootView: RootView(browser: browser, stage: self))
         host.translatesAutoresizingMaskIntoConstraints = false
+        // The panel's size is Perch's to set, not SwiftUI's: left to itself
+        // the hosting view would shrink the window to its content's ideal size.
+        host.sizingOptions = []
         glass.addSubview(host)
         NSLayoutConstraint.activate([
             host.leadingAnchor.constraint(equalTo: glass.leadingAnchor),

@@ -283,8 +283,16 @@ final class Browser: ObservableObject {
         DispatchQueue.main.async { web.window?.makeFirstResponder(web) }
     }
 
+    /// A blank tab wants typing; a page wants the keyboard for scrolling, and
+    /// the window would otherwise hand it to the address field, the first
+    /// text field it finds.
     func panelDidShow() {
-        if let active, active.isBlank { focusField() }
+        guard let active else { return }
+        if active.isBlank {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { self.focusField() }
+        } else {
+            focusPage()
+        }
     }
 
     func panelResized(width: CGFloat) {
