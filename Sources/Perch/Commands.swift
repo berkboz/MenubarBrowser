@@ -41,9 +41,9 @@ final class Commands: NSObject {
             let fav = History.shared.isFavorite(tab?.url)
             menu.addItem(item(fav ? "Remove from Favorites" : "Add to Favorites", #selector(favorite), "d"))
             menu.addItem(item("Copy Link", #selector(copyLink), "c", [.command, .shift]))
-            let share = NSMenuItem(title: "Share", action: nil, keyEquivalent: "")
-            share.submenu = shareMenu()
-            menu.addItem(share)
+            if let url = tab?.url {
+                menu.addItem(NSSharingServicePicker(items: [url]).standardShareMenuItem)
+            }
             menu.addItem(item("Open in Default Browser", #selector(openElsewhere)))
             menu.addItem(.separator())
             menu.addItem(item("Find on Page…", #selector(find), "f"))
@@ -80,25 +80,6 @@ final class Commands: NSObject {
         let quit = NSMenuItem(title: "Quit Perch", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         menu.addItem(quit)
         return menu
-    }
-
-    private func shareMenu() -> NSMenu {
-        let menu = NSMenu()
-        guard let url = browser.active?.url else { return menu }
-        for service in NSSharingService.sharingServices(forItems: [url]) {
-            let entry = NSMenuItem(title: service.menuItemTitle, action: #selector(share(_:)), keyEquivalent: "")
-            entry.image = service.image
-            entry.representedObject = service
-            entry.target = self
-            menu.addItem(entry)
-        }
-        return menu
-    }
-
-    @objc private func share(_ sender: NSMenuItem) {
-        guard let service = sender.representedObject as? NSSharingService,
-              let url = browser.active?.url else { return }
-        service.perform(withItems: [url])
     }
 
     @objc func openElsewhere() { browser.openInDefaultBrowser() }

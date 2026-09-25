@@ -15,3 +15,25 @@ jobs:
         with:
           name: Perch
           path: build/Perch.zip
+      - name: Screenshots
+        run: |
+          mkdir -p shots
+          shoot() { # name, then arguments for Perch
+            name="$1"; shift
+            open build/Perch.app --args --show "$@"
+            sleep "${WAIT:-6}"
+            screencapture -x "shots/$name.png" || true
+            pkill -x Perch || true
+            sleep 1
+          }
+          shoot start
+          WAIT=14 shoot page https://en.wikipedia.org/wiki/Menu_bar
+          defaults write app.perch.browser look dark
+          shoot start-dark
+          defaults write app.perch.browser width -float 980
+          defaults write app.perch.browser height -float 760
+          WAIT=14 shoot wide-dark https://www.apple.com/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Screenshots
+          path: shots

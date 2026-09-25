@@ -21,6 +21,7 @@ final class PanelController: NSObject, NSWindowDelegate {
     weak var anchor: NSStatusBarButton?
 
     private var generation = 0
+    private var shownOnce = false
     private var resizeStart: (mouse: NSPoint, frame: NSRect)?
     private var observers: [NSObjectProtocol] = []
 
@@ -81,7 +82,8 @@ final class PanelController: NSObject, NSWindowDelegate {
 
     func show() {
         generation += 1
-        let target = prefs.pinned && panel.isVisible ? panel.frame : anchoredFrame(for: prefs.size)
+        // A panel that was dragged somewhere comes back where it was left.
+        let target = prefs.pinned && shownOnce ? panel.frame : anchoredFrame(for: prefs.size)
         let wasVisible = panel.isVisible && panel.alphaValue > 0.5
 
         NSApp.unhide(nil)
@@ -101,6 +103,7 @@ final class PanelController: NSObject, NSWindowDelegate {
                 panel.animator().setFrame(target, display: true)
             }
         }
+        shownOnce = true
         anchor?.highlight(true)
         browser.panelResized(width: target.width)
         browser.wakeActive()

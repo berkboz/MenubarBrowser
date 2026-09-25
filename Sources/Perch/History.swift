@@ -205,7 +205,7 @@ final class Icons: ObservableObject {
 
     func icon(for host: String) -> NSImage? {
         if let image = byHost[host] { return image }
-        guard !missing.contains(host) else { return nil }
+        guard !host.isEmpty, !missing.contains(host) else { return nil }
         let file = Storage.icons.appendingPathComponent(Self.fileName(host))
         if let image = NSImage(contentsOf: file) {
             DispatchQueue.main.async { self.byHost[host] = image }

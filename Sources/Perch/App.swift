@@ -47,8 +47,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             .sink { [weak self] on in self?.applyBlocker(on) }
             .store(in: &bag)
 
-        // First launch: show the panel so there's no wondering where it went.
-        if !prefs.welcomed {
+        // `--show [address]` opens the panel at launch (used to screenshot builds).
+        let args = CommandLine.arguments
+        if let i = args.firstIndex(of: "--show") {
+            if args.count > i + 1, let url = URL(string: args[i + 1]), url.scheme != nil {
+                browser.open(url)
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { self.panel.show() }
+        } else if !prefs.welcomed {
+            // First launch: show the panel so there's no wondering where it went.
             prefs.welcomed = true
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { self.panel.show() }
         }

@@ -216,6 +216,7 @@ struct Omnibox: View {
                         .font(.system(size: 13))
                         .focused($focused)
                         .opacity(focused ? 1 : 0)
+                        .allowsHitTesting(focused)
                         .onSubmit(commit)
                         .onKeyPress(.upArrow) { omni.move(-1); return .handled }
                         .onKeyPress(.downArrow) { omni.move(1); return .handled }
@@ -242,7 +243,7 @@ struct Omnibox: View {
         .onTapGesture { if !focused { startEditing() } }
         .onHover { h in withAnimation(Motion.quick) { hover = h } }
         .onChange(of: focused) { _, now in
-            if !now { omni.end() }
+            if !now { omni.end() } else if !omni.editing { omni.begin(with: tab) }
         }
         .onChange(of: browser.focusRequest) { _, _ in startEditing() }
         .animation(Motion.quick, value: focused)
@@ -311,9 +312,6 @@ struct Omnibox: View {
     }
 
     private func cancel() {
-        if omni.picked != nil || !omni.rows.isEmpty, omni.text != "" {
-            omni.picked = nil
-        }
         focused = false
         if tab.isBlank {
             browser.panel?.hide()
