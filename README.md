@@ -9,6 +9,17 @@ back where you were. No Dock icon, no window to lose, nothing in the way.
 Perch is native Swift (AppKit + SwiftUI) running WebKit, the engine already built
 into macOS. It's a few megabytes, not a few hundred.
 
+<p>
+  <img src="docs/start.png" width="49%" alt="Perch's start page, dropped from the menu bar">
+  <img src="docs/page.png" width="49%" alt="A page in Perch, in its phone layout">
+</p>
+<p>
+  <img src="docs/start-dark.png" width="49%" alt="The start page in dark mode">
+  <img src="docs/wide.png" width="49%" alt="Perch at desktop size">
+</p>
+
+<sub>Screenshots are taken by CI on every push (see <code>.github/workflows/build.yml</code>).</sub>
+
 ## What it does
 
 - **Always one keystroke away.** A global shortcut (⌥Space by default, change it
